@@ -151,6 +151,133 @@ workspaces/
 #### Activity
 - `GET /api/activity` - Get user activity logs
 
+## Authentication System
+
+MinePilot implements a comprehensive authentication system supporting multiple login methods with enterprise-grade security.
+
+### How Authentication Works
+
+#### 1. **JWT-Based Sessions**
+- **Token Generation**: When users log in, the server creates a JWT containing user ID and email
+- **Token Storage**: Frontend stores the JWT in localStorage for persistence
+- **Token Validation**: All protected API routes verify the JWT using middleware
+- **Token Expiration**: JWTs expire after 30 days for security
+- **Automatic Renewal**: Frontend handles token refresh on page reload
+
+#### 2. **Password Security**
+- **Hashing Algorithm**: bcrypt with 12 salt rounds (slow, secure)
+- **Password Requirements**: Minimum 8 characters (enforced by Zod validation)
+- **Password Changes**: Secure change-password endpoint with current password verification
+
+#### 3. **OAuth 2.0 Integration**
+- **Google OAuth**: Uses Google Identity Platform for seamless login
+- **GitHub OAuth**: Integrates with GitHub's OAuth for developer-friendly auth
+- **State Protection**: OAuth flows include state parameters to prevent CSRF
+- **Profile Sync**: Automatically syncs user profile data (name, avatar) from OAuth providers
+
+#### 4. **Session Management**
+- **Stateless Sessions**: No server-side session storage, purely JWT-based
+- **Cross-Tab Sync**: Auth state automatically syncs across browser tabs
+- **Logout Handling**: Secure logout removes tokens and redirects to login
+- **Route Protection**: Automatic redirects for unauthenticated users
+
+### Authentication Flow Diagrams
+
+#### Email/Password Login Flow:
+```
+1. User submits email/password → Frontend
+2. Frontend calls POST /api/auth/login → API Server
+3. API validates credentials against database
+4. API generates JWT token
+5. API returns token + user data → Frontend
+6. Frontend stores token in localStorage
+7. Frontend redirects to dashboard
+```
+
+#### OAuth Login Flow:
+```
+1. User clicks "Login with Google" → Frontend
+2. Frontend redirects to /api/auth/google → API Server
+3. API redirects to Google OAuth → Google
+4. User authorizes app → Google
+5. Google redirects to /api/auth/google/callback → API Server
+6. API exchanges code for user info
+7. API creates/updates user record
+8. API generates JWT and redirects to frontend with token
+9. Frontend stores token and redirects to dashboard
+```
+
+### Frontend Authentication Implementation
+
+#### AuthContext (`src/lib/auth.tsx`)
+```typescript
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  token: string | null;
+  oauthError: string | null;
+  login: (token: string) => void;
+  logout: () => void;
+}
+```
+
+#### Route Protection
+- **Public Routes**: `/login`, `/register`
+- **Protected Routes**: All others require authentication
+- **Automatic Redirects**: Unauthenticated users → `/login`
+
+#### OAuth Error Handling
+- **Callback Errors**: Displayed as toast notifications
+- **Network Errors**: Graceful fallback with user-friendly messages
+- **State Validation**: Prevents CSRF attacks
+
+### Backend Authentication Implementation
+
+#### JWT Middleware (`src/middlewares/auth.ts`)
+```typescript
+export function requireAuth(req: AuthRequest, res: Response, next: NextFunction): void {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const token = authHeader.slice(7);
+  try {
+    const payload = verifyToken(token);
+    req.userId = payload.userId;
+    req.userEmail = payload.email;
+    next();
+  } catch {
+    res.status(401).json({ error: "Invalid token" });
+  }
+}
+```
+
+#### Password Hashing (`src/lib/jwt.ts`)
+```typescript
+import bcrypt from "bcryptjs";
+
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 12);
+}
+
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(password, hash);
+}
+```
+
+#### OAuth User Creation
+- **First Login**: Creates new user record with OAuth data
+- **Returning Users**: Updates profile information
+- **Email Conflicts**: Handles duplicate emails gracefully
+- **Profile Sync**: Updates name and avatar from OAuth provider
+
+### Database Schema
+The authentication system uses the following database tables:
+- `users`: Stores user accounts with email, password hash, OAuth provider info
+- `activity_logs`: Tracks all user actions for security auditing
+
 ## Setup & Installation
 
 ### Prerequisites
@@ -218,19 +345,186 @@ workspaces/
 
 ### OAuth Configuration
 
-#### Google OAuth Setup
-1. Visit [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing one
-3. Enable Google+ API
-4. Go to "Credentials" → "Create Credentials" → "OAuth 2.0 Client IDs"
-5. Set authorized redirect URI: `http://localhost:3001/api/auth/google/callback`
-6. Copy Client ID and Client Secret to `.env`
+#### Google OAuth Setup (Step-by-Step)
 
-#### GitHub OAuth Setup
-1. Go to GitHub → Settings → Developer settings → OAuth Apps
-2. Click "New OAuth App"
-3. Set Authorization callback URL: `http://localhost:3001/api/auth/github/callback`
-4. Copy Client ID and Client Secret to `.env`
+1. **Create Google Cloud Project**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Click "Create Project" or select an existing project
+   - Note your Project ID for reference
+
+2. **Enable Google Identity API**
+   - In the left sidebar, go to "APIs & Services" → "Library"
+   - Search for "Google+ API" and click on it
+   - Click "Enable" to activate the API
+
+3. **Configure OAuth Consent Screen**
+   - Go to "APIs & Services" → "OAuth consent screen"
+   - Choose "External" user type
+   - Fill in app information:
+     - App name: "MinePilot"
+     - User support email: Your email
+     - Developer contact information: Your email
+   - Add scopes: `openid`, `email`, `profile`
+   - Add test users if needed (your email)
+
+4. **Create OAuth Credentials**
+   - Go to "APIs & Services" → "Credentials"
+   - Click "Create Credentials" → "OAuth 2.0 Client IDs"
+   - Application type: "Web application"
+   - Name: "MinePilot Web Client"
+   - Authorized redirect URIs: `http://localhost:3001/api/auth/google/callback`
+   - Click "Create"
+
+5. **Get Your Credentials**
+   - Copy the "Client ID" and "Client Secret"
+   - Add to your `.env` file:
+   ```env
+   GOOGLE_CLIENT_ID=your-client-id-here.apps.googleusercontent.com
+   GOOGLE_CLIENT_SECRET=your-client-secret-here
+   ```
+
+#### GitHub OAuth Setup (Step-by-Step)
+
+1. **Access GitHub OAuth Apps**
+   - Go to GitHub.com and sign in
+   - Click your profile picture → "Settings"
+   - Scroll down to "Developer settings" → "OAuth Apps"
+
+2. **Register New OAuth Application**
+   - Click "New OAuth App" button
+   - Fill in application details:
+     - Application name: "MinePilot"
+     - Homepage URL: `http://localhost:3001`
+     - Application description: "Minecraft server management dashboard"
+     - Authorization callback URL: `http://localhost:3001/api/auth/github/callback`
+
+3. **Generate Client Secret**
+   - After creating the app, you'll see the Client ID
+   - Click "Generate a new client secret"
+   - Copy both Client ID and Client Secret
+
+4. **Configure Environment Variables**
+   - Add to your `.env` file:
+   ```env
+   GITHUB_CLIENT_ID=your-github-client-id
+   GITHUB_CLIENT_SECRET=your-github-client-secret
+   ```
+
+#### Testing OAuth Setup
+
+1. **Start your development servers**
+   ```bash
+   pnpm --filter @workspace/api-server run dev &
+   pnpm --filter @workspace/minepilot run dev
+   ```
+
+2. **Test Google OAuth**
+   - Go to http://localhost:3001/login
+   - Click "Continue with Google"
+   - You should be redirected to Google for authorization
+   - After approval, you should return to the dashboard
+
+3. **Test GitHub OAuth**
+   - Click "Continue with GitHub" on the login page
+   - Authorize the application on GitHub
+   - You should be redirected back to the dashboard
+
+4. **Verify User Creation**
+   - Check your database to ensure user records are created
+   - OAuth users should have `provider` set to "google" or "github"
+   - Profile information (name, avatar) should be synced
+
+#### Production OAuth Setup
+
+For production deployment, update the callback URLs in your OAuth apps:
+
+**Google:**
+- Authorized redirect URI: `https://yourdomain.com/api/auth/google/callback`
+
+**GitHub:**
+- Authorization callback URL: `https://yourdomain.com/api/auth/github/callback`
+
+Make sure to set `FRONTEND_URL` in your production `.env`:
+```env
+FRONTEND_URL=https://yourdomain.com
+```
+
+#### Troubleshooting OAuth
+
+**Common Issues:**
+- **"redirect_uri_mismatch"**: Callback URL doesn't match OAuth app settings
+- **"invalid_client"**: Wrong Client ID or Secret
+- **Stuck on OAuth page**: Check network tab for failed requests
+- **No user created**: Check database connection and logs
+
+**Debug Steps:**
+1. Check browser network tab for failed requests
+2. Verify environment variables are loaded
+3. Check API server logs for OAuth errors
+4. Ensure callback URLs match exactly (including protocol and port)
+
+### Testing Authentication
+
+#### Manual API Testing
+
+**Register a new user:**
+```bash
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "password": "password123", "name": "Test User"}'
+```
+
+**Login:**
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "password": "password123"}'
+```
+
+**Get current user (with token):**
+```bash
+curl -X GET http://localhost:3000/api/auth/me \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+#### Frontend Testing
+
+1. **Email Registration Flow**
+   - Visit http://localhost:3001/register
+   - Fill out the form and submit
+   - Should redirect to dashboard on success
+
+2. **Email Login Flow**
+   - Visit http://localhost:3001/login
+   - Enter credentials and submit
+   - Should redirect to dashboard
+
+3. **OAuth Testing**
+   - Click OAuth buttons on login page
+   - Complete authorization flow
+   - Should return to dashboard with user logged in
+
+4. **Session Persistence**
+   - Login and refresh the page
+   - Should remain logged in
+   - Open new tab, should be logged in there too
+
+5. **Logout Testing**
+   - Click logout button
+   - Should redirect to login page
+   - Refreshing should stay on login page
+
+#### Database Verification
+
+Check that users are created correctly:
+
+```sql
+-- Check users table
+SELECT id, email, name, provider, "createdAt" FROM users;
+
+-- Check activity logs
+SELECT * FROM activity_logs ORDER BY "createdAt" DESC LIMIT 10;
+```
 
 ## Development
 
