@@ -1,0 +1,22 @@
+packages:
+  "framer-motion": "For page transitions and interactive micro-animations"
+  "recharts": "For server health charts and data visualization"
+  "date-fns": "For formatting timestamps in console and activity logs"
+  "clsx": "Class merging for UI components"
+  "tailwind-merge": "Class merging for UI components"
+  "lucide-react": "For modern beautiful icons across the dashboard"
+  "@hookform/resolvers": "For zod schema validation in forms"
+  "react-hook-form": "For robust and performant form state management"
+  "@workspace/api-client-react": "workspace:*"
+
+images:
+  - path: "artifacts/minepilot/public/images/hero-bg.png"
+    description: "Dark moody abstract background with glowing green geometric shapes and lines resembling minecraft blocks, professional SaaS style"
+    aspect_ratio: "16:9"
+  - path: "artifacts/minepilot/public/images/logo.png"
+    description: "Modern minimalist geometric logo of a glowing green pickaxe on a transparent dark background, premium SaaS style"
+    aspect_ratio: "1:1"
+
+notes:
+  - Global fetch interceptor handles appending the JWT token from localStorage.
+  - Orval generated hooks are used exclusively for data fetching.

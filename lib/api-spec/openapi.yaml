@@ -1,0 +1,1091 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: MinePilot API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: servers
+    description: Server management
+  - name: plugins
+    description: Plugin marketplace
+  - name: console
+    description: Server console
+  - name: files
+    description: File manager
+  - name: ai
+    description: AI assistant
+  - name: activity
+    description: Activity logs
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/change-password:
+    post:
+      operationId: changePassword
+      tags: [auth]
+      summary: Change password
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+      responses:
+        "200":
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/delete-account:
+    delete:
+      operationId: deleteAccount
+      tags: [auth]
+      summary: Delete account
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Account deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/google:
+    get:
+      operationId: googleAuth
+      tags: [auth]
+      summary: Initiate Google OAuth
+      responses:
+        "302":
+          description: Redirect to Google
+
+  /auth/google/callback:
+    get:
+      operationId: googleCallback
+      tags: [auth]
+      summary: Google OAuth callback
+      parameters:
+        - name: code
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect with token
+
+  /auth/github:
+    get:
+      operationId: githubAuth
+      tags: [auth]
+      summary: Initiate GitHub OAuth
+      responses:
+        "302":
+          description: Redirect to GitHub
+
+  /auth/github/callback:
+    get:
+      operationId: githubCallback
+      tags: [auth]
+      summary: GitHub OAuth callback
+      parameters:
+        - name: code
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect with token
+
+  /servers:
+    get:
+      operationId: listServers
+      tags: [servers]
+      summary: List user's servers
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of servers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Server"
+    post:
+      operationId: createServer
+      tags: [servers]
+      summary: Add a server
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateServerRequest"
+      responses:
+        "201":
+          description: Server created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Server"
+
+  /servers/{id}:
+    get:
+      operationId: getServer
+      tags: [servers]
+      summary: Get server by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Server details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Server"
+    put:
+      operationId: updateServer
+      tags: [servers]
+      summary: Update server
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateServerRequest"
+      responses:
+        "200":
+          description: Server updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Server"
+    delete:
+      operationId: deleteServer
+      tags: [servers]
+      summary: Delete server
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Server deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /servers/{id}/connect:
+    post:
+      operationId: connectServer
+      tags: [servers]
+      summary: Connect to server via SSH
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Connection status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectionStatus"
+
+  /servers/{id}/disconnect:
+    post:
+      operationId: disconnectServer
+      tags: [servers]
+      summary: Disconnect from server
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Disconnected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /servers/{id}/stats:
+    get:
+      operationId: getServerStats
+      tags: [servers]
+      summary: Get server stats (CPU, RAM, TPS, players)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Server stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerStats"
+
+  /servers/{id}/setup:
+    post:
+      operationId: setupServer
+      tags: [servers]
+      summary: Run beginner server setup wizard
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetupServerRequest"
+      responses:
+        "200":
+          description: Setup initiated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /plugins:
+    get:
+      operationId: listPlugins
+      tags: [plugins]
+      summary: List available plugins in marketplace
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Plugin list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Plugin"
+
+  /plugins/installed:
+    get:
+      operationId: listInstalledPlugins
+      tags: [plugins]
+      summary: List installed plugins for a server
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serverId
+          in: query
+          required: false
+          schema:
+            type: integer
+            nullable: true
+      responses:
+        "200":
+          description: Installed plugins
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InstalledPlugin"
+
+  /plugins/install:
+    post:
+      operationId: installPlugin
+      tags: [plugins]
+      summary: Install a plugin on a server
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InstallPluginRequest"
+      responses:
+        "200":
+          description: Plugin installed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /console/command:
+    post:
+      operationId: sendCommand
+      tags: [console]
+      summary: Send command to server console
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsoleCommandRequest"
+      responses:
+        "200":
+          description: Command result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsoleCommandResponse"
+
+  /console/history:
+    get:
+      operationId: getConsoleHistory
+      tags: [console]
+      summary: Get console command history
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serverId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Command history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConsoleEntry"
+
+  /files/list:
+    get:
+      operationId: listFiles
+      tags: [files]
+      summary: List files in directory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serverId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: path
+          in: query
+          schema:
+            type: string
+            default: "/"
+      responses:
+        "200":
+          description: File listing
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FileEntry"
+
+  /files/read:
+    get:
+      operationId: readFile
+      tags: [files]
+      summary: Read file content
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serverId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: File content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileContent"
+
+  /files/write:
+    post:
+      operationId: writeFile
+      tags: [files]
+      summary: Write file content
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WriteFileRequest"
+      responses:
+        "200":
+          description: File written
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /files/delete:
+    delete:
+      operationId: deleteFile
+      tags: [files]
+      summary: Delete a file
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serverId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: File deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /ai/chat:
+    post:
+      operationId: aiChat
+      tags: [ai]
+      summary: Chat with AI assistant
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiChatRequest"
+      responses:
+        "200":
+          description: AI response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiChatResponse"
+
+  /ai/analyze-log:
+    post:
+      operationId: analyzeLog
+      tags: [ai]
+      summary: Analyze crash log
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeLogRequest"
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiChatResponse"
+
+  /ai/suggest-config:
+    post:
+      operationId: suggestConfig
+      tags: [ai]
+      summary: AI suggests plugin configuration
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SuggestConfigRequest"
+      responses:
+        "200":
+          description: Config suggestions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiChatResponse"
+
+  /activity:
+    get:
+      operationId: listActivity
+      tags: [activity]
+      summary: Get activity logs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serverId
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Activity logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityLog"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        name:
+          type: string
+      required: [email, password, name]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    ChangePasswordRequest:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+          minLength: 6
+      required: [currentPassword, newPassword]
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+      required: [token, user]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        avatarUrl:
+          type: string
+          nullable: true
+        provider:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, email, name, createdAt]
+
+    Server:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        host:
+          type: string
+        sshPort:
+          type: integer
+        sshUsername:
+          type: string
+        status:
+          type: string
+          enum: [online, offline, connecting, error]
+        serverType:
+          type: string
+          nullable: true
+        gameMode:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, name, host, sshPort, sshUsername, status, createdAt]
+
+    CreateServerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        host:
+          type: string
+        sshPort:
+          type: integer
+          default: 22
+        sshUsername:
+          type: string
+        sshPassword:
+          type: string
+        serverType:
+          type: string
+          nullable: true
+        gameMode:
+          type: string
+          nullable: true
+      required: [name, host, sshPort, sshUsername, sshPassword]
+
+    UpdateServerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        host:
+          type: string
+        sshPort:
+          type: integer
+        sshUsername:
+          type: string
+        sshPassword:
+          type: string
+        serverType:
+          type: string
+          nullable: true
+        gameMode:
+          type: string
+          nullable: true
+
+    ConnectionStatus:
+      type: object
+      properties:
+        connected:
+          type: boolean
+        message:
+          type: string
+      required: [connected, message]
+
+    ServerStats:
+      type: object
+      properties:
+        online:
+          type: boolean
+        playerCount:
+          type: integer
+        maxPlayers:
+          type: integer
+        ramUsed:
+          type: number
+        ramTotal:
+          type: number
+        cpuUsage:
+          type: number
+        tps:
+          type: number
+        diskUsed:
+          type: number
+        diskTotal:
+          type: number
+      required: [online, playerCount, maxPlayers, ramUsed, ramTotal, cpuUsage, tps, diskUsed, diskTotal]
+
+    SetupServerRequest:
+      type: object
+      properties:
+        serverType:
+          type: string
+          enum: [paper, spigot, purpur]
+        gameMode:
+          type: string
+          enum: [survival, skyblock, smp]
+        installPlugins:
+          type: array
+          items:
+            type: string
+      required: [serverType, gameMode]
+
+    Plugin:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        author:
+          type: string
+        category:
+          type: string
+        downloadUrl:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+      required: [id, name, description, version, author, category, downloadUrl, tags]
+
+    InstalledPlugin:
+      type: object
+      properties:
+        id:
+          type: integer
+        serverId:
+          type: integer
+        pluginId:
+          type: string
+        pluginName:
+          type: string
+        version:
+          type: string
+        installedAt:
+          type: string
+          format: date-time
+      required: [id, serverId, pluginId, pluginName, version, installedAt]
+
+    InstallPluginRequest:
+      type: object
+      properties:
+        serverId:
+          type: integer
+          nullable: true
+        pluginId:
+          type: string
+      required: [pluginId]
+
+    ConsoleCommandRequest:
+      type: object
+      properties:
+        serverId:
+          type: integer
+        command:
+          type: string
+      required: [serverId, command]
+
+    ConsoleCommandResponse:
+      type: object
+      properties:
+        output:
+          type: string
+        success:
+          type: boolean
+      required: [output, success]
+
+    ConsoleEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        serverId:
+          type: integer
+        command:
+          type: string
+        output:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, serverId, command, output, createdAt]
+
+    FileEntry:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        isDirectory:
+          type: boolean
+        size:
+          type: integer
+          nullable: true
+        modifiedAt:
+          type: string
+          nullable: true
+      required: [name, path, isDirectory]
+
+    FileContent:
+      type: object
+      properties:
+        path:
+          type: string
+        content:
+          type: string
+      required: [path, content]
+
+    WriteFileRequest:
+      type: object
+      properties:
+        serverId:
+          type: integer
+        path:
+          type: string
+        content:
+          type: string
+      required: [serverId, path, content]
+
+    AiChatRequest:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+        serverId:
+          type: integer
+          nullable: true
+      required: [messages]
+
+    ChatMessage:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [user, assistant, system]
+        content:
+          type: string
+      required: [role, content]
+
+    AnalyzeLogRequest:
+      type: object
+      properties:
+        log:
+          type: string
+      required: [log]
+
+    SuggestConfigRequest:
+      type: object
+      properties:
+        pluginName:
+          type: string
+        serverId:
+          type: integer
+          nullable: true
+      required: [pluginName]
+
+    AiChatResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    ActivityLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        serverId:
+          type: integer
+          nullable: true
+        action:
+          type: string
+        details:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, action, createdAt]

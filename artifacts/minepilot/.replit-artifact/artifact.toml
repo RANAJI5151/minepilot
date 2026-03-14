@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "MinePilot"
+version = "1.0.0"
+id = "artifacts/minepilot"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 21425
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/minepilot run dev"
+
+[services.env]
+PORT = "21425"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/minepilot", "run", "build"]
+publicDir = "artifacts/minepilot/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
