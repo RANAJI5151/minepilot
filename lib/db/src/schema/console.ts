@@ -1,6 +1,6 @@
 import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { serversTable } from "./servers";
 
 export const consoleEntriesTable = pgTable("console_entries", {
@@ -16,5 +16,5 @@ export const insertConsoleEntrySchema = createInsertSchema(consoleEntriesTable).
   createdAt: true,
 });
 
-export type InsertConsoleEntry = z.infer<typeof insertConsoleEntrySchema>;
+export type InsertConsoleEntry = typeof consoleEntriesTable.$inferInsert;
 export type ConsoleEntry = typeof consoleEntriesTable.$inferSelect;

@@ -1,6 +1,6 @@
 import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { usersTable } from "./users";
 
 export const serversTable = pgTable("servers", {
@@ -24,5 +24,5 @@ export const insertServerSchema = createInsertSchema(serversTable).omit({
   updatedAt: true,
 });
 
-export type InsertServer = z.infer<typeof insertServerSchema>;
+export type InsertServer = typeof serversTable.$inferInsert;
 export type Server = typeof serversTable.$inferSelect;

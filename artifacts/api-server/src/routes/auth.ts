@@ -169,9 +169,9 @@ router.get("/google/callback", async (req, res) => {
 
     const { email, name, picture, sub } = userRes.data;
     const token = await upsertOAuthUser({ email, name, avatarUrl: picture, provider: "google", providerId: sub });
-    res.redirect(`/?token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL || "http://localhost:3002"}/?token=${token}`);
   } catch {
-    res.redirect("/?error=oauth_failed");
+    res.redirect(`${process.env.FRONTEND_URL || "http://localhost:3002"}/?error=oauth_failed`);
   }
 });
 
@@ -232,9 +232,9 @@ router.get("/github/callback", async (req, res) => {
       provider: "github",
       providerId: String(id),
     });
-    res.redirect(`/?token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL || "http://localhost:3002"}/?token=${token}`);
   } catch {
-    res.redirect("/?error=oauth_failed");
+    res.redirect(`${process.env.FRONTEND_URL || "http://localhost:3002"}/?error=oauth_failed`);
   }
 });
 
@@ -267,13 +267,8 @@ async function upsertOAuthUser(data: {
 }
 
 function getCallbackUrl(req: AuthRequest, provider: string): string {
-  const domains = process.env.REPLIT_DOMAINS?.split(",")[0];
-  if (domains) {
-    return `https://${domains}/api/auth/${provider}/callback`;
-  }
-  const host = req.get("host") || "localhost:80";
-  const protocol = req.protocol || "http";
-  return `${protocol}://${host}/api/auth/${provider}/callback`;
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3002";
+  return `${frontendUrl}/api/auth/${provider}/callback`;
 }
 
 export default router;

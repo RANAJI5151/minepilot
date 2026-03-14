@@ -1,6 +1,6 @@
 import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { serversTable } from "./servers";
 import { usersTable } from "./users";
 
@@ -20,5 +20,5 @@ export const insertInstalledPluginSchema = createInsertSchema(installedPluginsTa
   installedAt: true,
 });
 
-export type InsertInstalledPlugin = z.infer<typeof insertInstalledPluginSchema>;
+export type InsertInstalledPlugin = typeof installedPluginsTable.$inferInsert;
 export type InstalledPlugin = typeof installedPluginsTable.$inferSelect;
