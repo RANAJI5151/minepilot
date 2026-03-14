@@ -68,7 +68,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * @summary Health check
  */
 export const getHealthCheckUrl = () => {
-  return `/api/healthz`;
+  return `https://minepilot-t47k.onrender.com/api/healthz`;
 };
 
 export const healthCheck = async (
@@ -81,7 +81,7 @@ export const healthCheck = async (
 };
 
 export const getHealthCheckQueryKey = () => {
-  return [`/api/healthz`] as const;
+  return [`https://minepilot-t47k.onrender.com/api/healthz`] as const;
 };
 
 export const getHealthCheckQueryOptions = <
@@ -143,7 +143,7 @@ export function useHealthCheck<
  * @summary Register with email and password
  */
 export const getRegisterUrl = () => {
-  return `/api/auth/register`;
+  return `https://minepilot-t47k.onrender.com/api/auth/register`;
 };
 
 export const register = async (
@@ -229,7 +229,7 @@ export const useRegister = <
  * @summary Login with email and password
  */
 export const getLoginUrl = () => {
-  return `/api/auth/login`;
+  return `https://minepilot-t47k.onrender.com/api/auth/login`;
 };
 
 export const login = async (
@@ -315,7 +315,7 @@ export const useLogin = <
  * @summary Get current user
  */
 export const getGetMeUrl = () => {
-  return `/api/auth/me`;
+  return `https://minepilot-t47k.onrender.com/api/auth/me`;
 };
 
 export const getMe = async (options?: RequestInit): Promise<User> => {
@@ -326,7 +326,7 @@ export const getMe = async (options?: RequestInit): Promise<User> => {
 };
 
 export const getGetMeQueryKey = () => {
-  return [`/api/auth/me`] as const;
+  return [`https://minepilot-t47k.onrender.com/api/auth/me`] as const;
 };
 
 export const getGetMeQueryOptions = <
@@ -378,7 +378,7 @@ export function useGetMe<
  * @summary Change password
  */
 export const getChangePasswordUrl = () => {
-  return `/api/auth/change-password`;
+  return `https://minepilot-t47k.onrender.com/api/auth/change-password`;
 };
 
 export const changePassword = async (
@@ -464,7 +464,7 @@ export const useChangePassword = <
  * @summary Delete account
  */
 export const getDeleteAccountUrl = () => {
-  return `/api/auth/delete-account`;
+  return `https://minepilot-t47k.onrender.com/api/auth/delete-account`;
 };
 
 export const deleteAccount = async (
@@ -545,7 +545,7 @@ export const useDeleteAccount = <
  * @summary Initiate Google OAuth
  */
 export const getGoogleAuthUrl = () => {
-  return `/api/auth/google`;
+  return `https://minepilot-t47k.onrender.com/api/auth/google`;
 };
 
 export const googleAuth = async (options?: RequestInit): Promise<unknown> => {
@@ -556,7 +556,7 @@ export const googleAuth = async (options?: RequestInit): Promise<unknown> => {
 };
 
 export const getGoogleAuthQueryKey = () => {
-  return [`/api/auth/google`] as const;
+  return [`https://minepilot-t47k.onrender.com/api/auth/google`] as const;
 };
 
 export const getGoogleAuthQueryOptions = <
@@ -629,8 +629,8 @@ export const getGoogleCallbackUrl = (params?: GoogleCallbackParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/auth/google/callback?${stringifiedParams}`
-    : `/api/auth/google/callback`;
+    ? `https://minepilot-t47k.onrender.com/api/auth/google/callback?${stringifiedParams}`
+    : `https://minepilot-t47k.onrender.com/api/auth/google/callback`;
 };
 
 export const googleCallback = async (
@@ -644,7 +644,10 @@ export const googleCallback = async (
 };
 
 export const getGoogleCallbackQueryKey = (params?: GoogleCallbackParams) => {
-  return [`/api/auth/google/callback`, ...(params ? [params] : [])] as const;
+  return [
+    `https://minepilot-t47k.onrender.com/api/auth/google/callback`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getGoogleCallbackQueryOptions = <
@@ -712,7 +715,7 @@ export function useGoogleCallback<
  * @summary Initiate GitHub OAuth
  */
 export const getGithubAuthUrl = () => {
-  return `/api/auth/github`;
+  return `https://minepilot-t47k.onrender.com/api/auth/github`;
 };
 
 export const githubAuth = async (options?: RequestInit): Promise<unknown> => {
@@ -723,7 +726,7 @@ export const githubAuth = async (options?: RequestInit): Promise<unknown> => {
 };
 
 export const getGithubAuthQueryKey = () => {
-  return [`/api/auth/github`] as const;
+  return [`https://minepilot-t47k.onrender.com/api/auth/github`] as const;
 };
 
 export const getGithubAuthQueryOptions = <
@@ -796,8 +799,8 @@ export const getGithubCallbackUrl = (params?: GithubCallbackParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/auth/github/callback?${stringifiedParams}`
-    : `/api/auth/github/callback`;
+    ? `https://minepilot-t47k.onrender.com/api/auth/github/callback?${stringifiedParams}`
+    : `https://minepilot-t47k.onrender.com/api/auth/github/callback`;
 };
 
 export const githubCallback = async (
@@ -811,7 +814,10 @@ export const githubCallback = async (
 };
 
 export const getGithubCallbackQueryKey = (params?: GithubCallbackParams) => {
-  return [`/api/auth/github/callback`, ...(params ? [params] : [])] as const;
+  return [
+    `https://minepilot-t47k.onrender.com/api/auth/github/callback`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getGithubCallbackQueryOptions = <
@@ -879,7 +885,7 @@ export function useGithubCallback<
  * @summary List user's servers
  */
 export const getListServersUrl = () => {
-  return `/api/servers`;
+  return `https://minepilot-t47k.onrender.com/api/servers`;
 };
 
 export const listServers = async (options?: RequestInit): Promise<Server[]> => {
@@ -890,7 +896,7 @@ export const listServers = async (options?: RequestInit): Promise<Server[]> => {
 };
 
 export const getListServersQueryKey = () => {
-  return [`/api/servers`] as const;
+  return [`https://minepilot-t47k.onrender.com/api/servers`] as const;
 };
 
 export const getListServersQueryOptions = <
@@ -952,7 +958,7 @@ export function useListServers<
  * @summary Add a server
  */
 export const getCreateServerUrl = () => {
-  return `/api/servers`;
+  return `https://minepilot-t47k.onrender.com/api/servers`;
 };
 
 export const createServer = async (
@@ -1038,7 +1044,7 @@ export const useCreateServer = <
  * @summary Get server by ID
  */
 export const getGetServerUrl = (id: number) => {
-  return `/api/servers/${id}`;
+  return `https://minepilot-t47k.onrender.com/api/servers/${id}`;
 };
 
 export const getServer = async (
@@ -1052,7 +1058,7 @@ export const getServer = async (
 };
 
 export const getGetServerQueryKey = (id: number) => {
-  return [`/api/servers/${id}`] as const;
+  return [`https://minepilot-t47k.onrender.com/api/servers/${id}`] as const;
 };
 
 export const getGetServerQueryOptions = <
@@ -1123,7 +1129,7 @@ export function useGetServer<
  * @summary Update server
  */
 export const getUpdateServerUrl = (id: number) => {
-  return `/api/servers/${id}`;
+  return `https://minepilot-t47k.onrender.com/api/servers/${id}`;
 };
 
 export const updateServer = async (
@@ -1210,7 +1216,7 @@ export const useUpdateServer = <
  * @summary Delete server
  */
 export const getDeleteServerUrl = (id: number) => {
-  return `/api/servers/${id}`;
+  return `https://minepilot-t47k.onrender.com/api/servers/${id}`;
 };
 
 export const deleteServer = async (
@@ -1294,7 +1300,7 @@ export const useDeleteServer = <
  * @summary Connect to server via SSH
  */
 export const getConnectServerUrl = (id: number) => {
-  return `/api/servers/${id}/connect`;
+  return `https://minepilot-t47k.onrender.com/api/servers/${id}/connect`;
 };
 
 export const connectServer = async (
@@ -1378,7 +1384,7 @@ export const useConnectServer = <
  * @summary Disconnect from server
  */
 export const getDisconnectServerUrl = (id: number) => {
-  return `/api/servers/${id}/disconnect`;
+  return `https://minepilot-t47k.onrender.com/api/servers/${id}/disconnect`;
 };
 
 export const disconnectServer = async (
@@ -1462,7 +1468,7 @@ export const useDisconnectServer = <
  * @summary Get server stats (CPU, RAM, TPS, players)
  */
 export const getGetServerStatsUrl = (id: number) => {
-  return `/api/servers/${id}/stats`;
+  return `https://minepilot-t47k.onrender.com/api/servers/${id}/stats`;
 };
 
 export const getServerStats = async (
@@ -1476,7 +1482,9 @@ export const getServerStats = async (
 };
 
 export const getGetServerStatsQueryKey = (id: number) => {
-  return [`/api/servers/${id}/stats`] as const;
+  return [
+    `https://minepilot-t47k.onrender.com/api/servers/${id}/stats`,
+  ] as const;
 };
 
 export const getGetServerStatsQueryOptions = <
@@ -1549,7 +1557,7 @@ export function useGetServerStats<
  * @summary Run beginner server setup wizard
  */
 export const getSetupServerUrl = (id: number) => {
-  return `/api/servers/${id}/setup`;
+  return `https://minepilot-t47k.onrender.com/api/servers/${id}/setup`;
 };
 
 export const setupServer = async (
@@ -1636,7 +1644,7 @@ export const useSetupServer = <
  * @summary List available plugins in marketplace
  */
 export const getListPluginsUrl = () => {
-  return `/api/plugins`;
+  return `https://minepilot-t47k.onrender.com/api/plugins`;
 };
 
 export const listPlugins = async (options?: RequestInit): Promise<Plugin[]> => {
@@ -1647,7 +1655,7 @@ export const listPlugins = async (options?: RequestInit): Promise<Plugin[]> => {
 };
 
 export const getListPluginsQueryKey = () => {
-  return [`/api/plugins`] as const;
+  return [`https://minepilot-t47k.onrender.com/api/plugins`] as const;
 };
 
 export const getListPluginsQueryOptions = <
@@ -1722,8 +1730,8 @@ export const getListInstalledPluginsUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/plugins/installed?${stringifiedParams}`
-    : `/api/plugins/installed`;
+    ? `https://minepilot-t47k.onrender.com/api/plugins/installed?${stringifiedParams}`
+    : `https://minepilot-t47k.onrender.com/api/plugins/installed`;
 };
 
 export const listInstalledPlugins = async (
@@ -1739,7 +1747,10 @@ export const listInstalledPlugins = async (
 export const getListInstalledPluginsQueryKey = (
   params?: ListInstalledPluginsParams,
 ) => {
-  return [`/api/plugins/installed`, ...(params ? [params] : [])] as const;
+  return [
+    `https://minepilot-t47k.onrender.com/api/plugins/installed`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getListInstalledPluginsQueryOptions = <
@@ -1809,7 +1820,7 @@ export function useListInstalledPlugins<
  * @summary Install a plugin on a server
  */
 export const getInstallPluginUrl = () => {
-  return `/api/plugins/install`;
+  return `https://minepilot-t47k.onrender.com/api/plugins/install`;
 };
 
 export const installPlugin = async (
@@ -1895,7 +1906,7 @@ export const useInstallPlugin = <
  * @summary Send command to server console
  */
 export const getSendCommandUrl = () => {
-  return `/api/console/command`;
+  return `https://minepilot-t47k.onrender.com/api/console/command`;
 };
 
 export const sendCommand = async (
@@ -1992,8 +2003,8 @@ export const getGetConsoleHistoryUrl = (params: GetConsoleHistoryParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/console/history?${stringifiedParams}`
-    : `/api/console/history`;
+    ? `https://minepilot-t47k.onrender.com/api/console/history?${stringifiedParams}`
+    : `https://minepilot-t47k.onrender.com/api/console/history`;
 };
 
 export const getConsoleHistory = async (
@@ -2009,7 +2020,10 @@ export const getConsoleHistory = async (
 export const getGetConsoleHistoryQueryKey = (
   params?: GetConsoleHistoryParams,
 ) => {
-  return [`/api/console/history`, ...(params ? [params] : [])] as const;
+  return [
+    `https://minepilot-t47k.onrender.com/api/console/history`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getGetConsoleHistoryQueryOptions = <
@@ -2089,8 +2103,8 @@ export const getListFilesUrl = (params: ListFilesParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/files/list?${stringifiedParams}`
-    : `/api/files/list`;
+    ? `https://minepilot-t47k.onrender.com/api/files/list?${stringifiedParams}`
+    : `https://minepilot-t47k.onrender.com/api/files/list`;
 };
 
 export const listFiles = async (
@@ -2104,7 +2118,10 @@ export const listFiles = async (
 };
 
 export const getListFilesQueryKey = (params?: ListFilesParams) => {
-  return [`/api/files/list`, ...(params ? [params] : [])] as const;
+  return [
+    `https://minepilot-t47k.onrender.com/api/files/list`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getListFilesQueryOptions = <
@@ -2183,8 +2200,8 @@ export const getReadFileUrl = (params: ReadFileParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/files/read?${stringifiedParams}`
-    : `/api/files/read`;
+    ? `https://minepilot-t47k.onrender.com/api/files/read?${stringifiedParams}`
+    : `https://minepilot-t47k.onrender.com/api/files/read`;
 };
 
 export const readFile = async (
@@ -2198,7 +2215,10 @@ export const readFile = async (
 };
 
 export const getReadFileQueryKey = (params?: ReadFileParams) => {
-  return [`/api/files/read`, ...(params ? [params] : [])] as const;
+  return [
+    `https://minepilot-t47k.onrender.com/api/files/read`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getReadFileQueryOptions = <
@@ -2266,7 +2286,7 @@ export function useReadFile<
  * @summary Write file content
  */
 export const getWriteFileUrl = () => {
-  return `/api/files/write`;
+  return `https://minepilot-t47k.onrender.com/api/files/write`;
 };
 
 export const writeFile = async (
@@ -2363,8 +2383,8 @@ export const getDeleteFileUrl = (params: DeleteFileParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/files/delete?${stringifiedParams}`
-    : `/api/files/delete`;
+    ? `https://minepilot-t47k.onrender.com/api/files/delete?${stringifiedParams}`
+    : `https://minepilot-t47k.onrender.com/api/files/delete`;
 };
 
 export const deleteFile = async (
@@ -2448,7 +2468,7 @@ export const useDeleteFile = <
  * @summary Chat with AI assistant
  */
 export const getAiChatUrl = () => {
-  return `/api/ai/chat`;
+  return `https://minepilot-t47k.onrender.com/api/ai/chat`;
 };
 
 export const aiChat = async (
@@ -2534,7 +2554,7 @@ export const useAiChat = <
  * @summary Analyze crash log
  */
 export const getAnalyzeLogUrl = () => {
-  return `/api/ai/analyze-log`;
+  return `https://minepilot-t47k.onrender.com/api/ai/analyze-log`;
 };
 
 export const analyzeLog = async (
@@ -2620,7 +2640,7 @@ export const useAnalyzeLog = <
  * @summary AI suggests plugin configuration
  */
 export const getSuggestConfigUrl = () => {
-  return `/api/ai/suggest-config`;
+  return `https://minepilot-t47k.onrender.com/api/ai/suggest-config`;
 };
 
 export const suggestConfig = async (
@@ -2717,8 +2737,8 @@ export const getListActivityUrl = (params?: ListActivityParams) => {
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `/api/activity?${stringifiedParams}`
-    : `/api/activity`;
+    ? `https://minepilot-t47k.onrender.com/api/activity?${stringifiedParams}`
+    : `https://minepilot-t47k.onrender.com/api/activity`;
 };
 
 export const listActivity = async (
@@ -2732,7 +2752,10 @@ export const listActivity = async (
 };
 
 export const getListActivityQueryKey = (params?: ListActivityParams) => {
-  return [`/api/activity`, ...(params ? [params] : [])] as const;
+  return [
+    `https://minepilot-t47k.onrender.com/api/activity`,
+    ...(params ? [params] : []),
+  ] as const;
 };
 
 export const getListActivityQueryOptions = <

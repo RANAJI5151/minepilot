@@ -267,8 +267,8 @@ async function upsertOAuthUser(data: {
 }
 
 function getCallbackUrl(req: AuthRequest, provider: string): string {
-  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3002";
-  return `${frontendUrl}/api/auth/${provider}/callback`;
+  const backendUrl = process.env.BACKEND_URL || "http://localhost:3000";
+  return `${backendUrl}/api/auth/${provider}/callback`;
 }
 
 export default router;

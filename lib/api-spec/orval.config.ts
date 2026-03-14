@@ -1,5 +1,8 @@
 import { defineConfig, InputTransformerFn } from "orval";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config({ path: path.resolve(__dirname, "..", "..", ".env") });
 
 const root = path.resolve(__dirname, "..", "..");
 const apiClientReactSrc = path.resolve(root, "lib", "api-client-react", "src");
@@ -26,7 +29,7 @@ export default defineConfig({
       target: "generated",
       client: "react-query",
       mode: "split",
-      baseUrl: "/api",
+      baseUrl: process.env.API_BASE_URL || "/api",
       clean: true,
       prettier: true,
       override: {
