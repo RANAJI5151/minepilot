@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { useGetMe } from "@workspace/api-client-react";
+import { setupServer, useGetMe } from "@workspace/api-client-react";
 import type { User } from "@workspace/api-client-react";
 
 interface AuthContextType {
@@ -61,6 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     localStorage.removeItem("minepilot_token");
     setToken(null);
+    setupServer(null);
+    window.location.href="https://minepilot-minepilot.vercel.app/";
   };
 
   return (
