@@ -35,9 +35,9 @@ export default function Login() {
     loginMutation.mutate({ data: { email, password } });
   };
 
-  const origin = window.location.origin;
-  const googleCallback = `${origin}/api/auth/google/callback`;
-  const githubCallback = `${origin}/api/auth/github/callback`;
+  const apiBase = import.meta.env.VITE_API_URL;
+  const googleCallback = `${apiBase}/api/auth/google/callback`;
+  const githubCallback = `${apiBase}/api/auth/github/callback`;
 
   function copyToClipboard(text: string, key: string) {
     navigator.clipboard.writeText(text);
@@ -62,7 +62,6 @@ export default function Login() {
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-md space-y-4"
         >
-          {/* OAuth Error Banner */}
           <AnimatePresence>
             {oauthError && (
               <motion.div
@@ -74,13 +73,14 @@ export default function Login() {
                 <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold mb-1">OAuth Sign-in Failed</p>
-                  <p className="text-destructive/80">The callback URL isn't registered. Click "OAuth Setup" below to see the required callback URLs.</p>
+                  <p className="text-destructive/80">
+                    The callback URL isn't registered. Click "OAuth Setup" below to see the required callback URLs.
+                  </p>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Main Login Card */}
           <div className="glass-panel p-8 rounded-3xl">
             <div className="text-center mb-8">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-emerald-400 mx-auto mb-4 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]">
@@ -132,7 +132,7 @@ export default function Login() {
               <Button
                 variant="outline"
                 className="h-11"
-                onClick={() => (window.location.href = "/api/auth/google")}
+                onClick={() => (window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`)}
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -145,7 +145,7 @@ export default function Login() {
               <Button
                 variant="outline"
                 className="h-11"
-                onClick={() => (window.location.href = "/api/auth/github")}
+                onClick={() => (window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/github`)}
               >
                 <Github className="w-5 h-5 mr-2" />
                 GitHub
@@ -160,7 +160,6 @@ export default function Login() {
             </p>
           </div>
 
-          {/* OAuth Setup Instructions */}
           <div className="glass-panel rounded-2xl overflow-hidden border border-border/50">
             <button
               onClick={() => setShowSetup(!showSetup)}
@@ -183,7 +182,6 @@ export default function Login() {
                   className="overflow-hidden"
                 >
                   <div className="px-4 pb-5 space-y-4 border-t border-border/50 pt-4">
-                    {/* Google */}
                     <div>
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                         Google — Authorized Redirect URI
@@ -216,7 +214,6 @@ export default function Login() {
                       </div>
                     </div>
 
-                    {/* GitHub */}
                     <div>
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                         GitHub — Authorization Callback URL
