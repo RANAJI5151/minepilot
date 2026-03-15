@@ -143,6 +143,7 @@ router.get("/google", (req, res) => {
     response_type: "code",
     scope: "openid email profile",
     state: "google_oauth",
+    prompt: "select_account",
   });
   res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
 });
