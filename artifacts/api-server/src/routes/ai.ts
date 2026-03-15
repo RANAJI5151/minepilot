@@ -1,39 +1,28 @@
 import { Router, type IRouter } from "express";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { requireAuth } from "../middlewares/auth.js";
 import { AiChatBody, AnalyzeLogBody, SuggestConfigBody } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
-async function callOpenAI(messages: { role: string; content: string }[]): Promise<string> {
-  const baseUrl = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
-  const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  throw new Error("GEMINI_API_KEY not configured");
+}
 
-  const url = baseUrl
-    ? `${baseUrl}/chat/completions`
-    : "https://api.openai.com/v1/chat/completions";
+const genAI = new GoogleGenerativeAI(apiKey);
 
-  if (!apiKey) throw new Error("OpenAI API key not configured");
+async function callGemini(messages: { role: string; content: string }[]): Promise<string> {
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-5-mini",
-      messages,
-      max_completion_tokens: 1024,
-    }),
-  });
+  const prompt = messages
+    .map((msg) => `${msg.role.toUpperCase()}:\n${msg.content}`)
+    .join("\n\n");
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`AI service error: ${err}`);
-  }
+  const result = await model.generateContent(prompt);
+  const reply = result.response.text();
 
-  const data = await response.json() as { choices: { message: { content: string } }[] };
-  return data.choices[0]?.message?.content || "No response";
+  return reply || "No response";
 }
 
 router.post("/chat", requireAuth, async (req, res) => {
@@ -45,8 +34,8 @@ router.post("/chat", requireAuth, async (req, res) => {
 
   const { messages } = parsed.data;
   const systemMessage = {
-    role: "system" as const,
-    content: `You are MinePilot AI, an expert Minecraft server management assistant. 
+    role: "system",
+    content: `You are MinePilot AI, an expert Minecraft server management assistant.
 You help server administrators with:
 - Plugin recommendations and troubleshooting for Paper, Spigot, PocketMine-MP, BungeeCord, Velocity
 - Server performance optimization
@@ -59,10 +48,11 @@ Be concise, practical, and technical. Format responses with markdown when helpfu
   };
 
   try {
-    const reply = await callOpenAI([systemMessage, ...messages]);
+    const reply = await callGemini([systemMessage, ...messages]);
     res.json({ message: reply });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "AI service error";
+    console.error("Gemini /chat error:", err);
     res.status(500).json({ error: msg });
   }
 });
@@ -77,26 +67,27 @@ router.post("/analyze-log", requireAuth, async (req, res) => {
   const { log } = parsed.data;
   const messages = [
     {
-      role: "system" as const,
+      role: "system",
       content: `You are a Minecraft server crash log expert. Analyze the provided crash log or error log and provide:
-1. **Root Cause**: What caused the crash/error
-2. **Affected Components**: Plugins, mods, or server components involved
-3. **Fix Steps**: Numbered list of steps to resolve the issue
-4. **Prevention**: How to prevent this in the future
+1. Root Cause: What caused the crash/error
+2. Affected Components: Plugins, mods, or server components involved
+3. Fix Steps: Numbered list of steps to resolve the issue
+4. Prevention: How to prevent this in the future
 
 Be specific about plugin names, version conflicts, and missing dependencies. Format with markdown.`,
     },
     {
-      role: "user" as const,
+      role: "user",
       content: `Please analyze this Minecraft server log:\n\n${log}`,
     },
   ];
 
   try {
-    const reply = await callOpenAI(messages);
+    const reply = await callGemini(messages);
     res.json({ message: reply });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "AI service error";
+    console.error("Gemini /analyze-log error:", err);
     res.status(500).json({ error: msg });
   }
 });
@@ -111,12 +102,12 @@ router.post("/suggest-config", requireAuth, async (req, res) => {
   const { pluginName } = parsed.data;
   const messages = [
     {
-      role: "system" as const,
+      role: "system",
       content: `You are a Minecraft plugin configuration expert. Provide recommended configurations for plugins.`,
     },
     {
-      role: "user" as const,
-      content: `Provide a recommended starter configuration for the Minecraft plugin: ${pluginName}. 
+      role: "user",
+      content: `Provide a recommended starter configuration for the Minecraft plugin: ${pluginName}.
 Include:
 1. Suggested rank/group structure (if applicable)
 2. Recommended settings with explanations
@@ -126,10 +117,11 @@ Include:
   ];
 
   try {
-    const reply = await callOpenAI(messages);
+    const reply = await callGemini(messages);
     res.json({ message: reply });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "AI service error";
+    console.error("Gemini /suggest-config error:", err);
     res.status(500).json({ error: msg });
   }
 });
